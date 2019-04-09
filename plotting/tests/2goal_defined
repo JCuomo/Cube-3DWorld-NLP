@@ -1,0 +1,6 @@
+(has block1 location 0 3 0)
+(has block3 location 6 2 0)
+(is block2 table on-top-of)
+(has block2 location 3 4 0)
+(is block1 table on-top-of)
+(is block3 table on-top-of)
