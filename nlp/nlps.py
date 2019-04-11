@@ -1,15 +1,21 @@
 import numpy as np
 import nltk
+from nltk.tokenize import word_tokenize
+from nltk.tag import pos_tag
 #nltk.download('popular')
 import spacy
 import textacy.extract
 
 def run_nltk():
-    print("Running nltk tokenizer.")
+    print("Running nltk tokenizer. NNP = Proper Noun, NN = Noun")
     sentence = "The Blue Block swam over to the Red Block. The Blue Block used to sit on top of the Pink Block known as derpy."
     tokens = nltk.word_tokenize(sentence)
     for token in tokens:
         print(token)
+
+    tokens = nltk.pos_tag(tokens)
+    print(tokens)
+
     print()
 
 def run_spacy():
