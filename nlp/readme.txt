@@ -11,3 +11,6 @@ sudo pip install -U nltk
 sudo pip install -U numpy
 ### Download language packs for nltk (put inside python script):
 nltk.download('popular')
+
+### Setting up stanford
+java -mx4g -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer -annotators "tokenize,ssplit,pos,lemma,parse,sentiment" -port 9000 -timeout 30000
