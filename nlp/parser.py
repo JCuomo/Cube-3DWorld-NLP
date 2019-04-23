@@ -10,15 +10,7 @@ LABEL = "BLOCK"
 sentence0 = "Move the blue block seventeen units south and two units east." #Properly broken down.
 sentence1 = "The blue block moves seventeen units south and two units east." #block not identified as subject
 sentence2 = "Move the pink block two units up."#up not identified as modifier like east/west/north
-
-#To train a network, we will need a few hundred of these:
-train_data = [
-    ("Move the blue block seventeen units south and two units east.", [(9, 18, LABEL)]),
-    ("Move the pink block two units up.", [(9, 18, LABEL)]),
-    ("Move the red block three units east.", [(9, 17, LABEL)]),
-    ("Move the green block three units north.", [(9, 19, LABEL)]),
-    ("Move the yellow block five units north and one unit up.", [(9, 20, LABEL)]),
-    ("Move the red block three units south and one unit west.", [(9, 17, LABEL)])] 
+sentence10 = "Put the red block on top of the green block."
 
 #Create an nltk object
 def to_nltk_tree(node):
@@ -48,14 +40,29 @@ def run_spacy(sentence, verbose=False):
 
     return document
 
-#Get block from a sentence
-def getBlocksFromInput(document, verbose=False):
+#Get multiple blocks from a sentence
+def getMultipleBlocksFromInput(document, verbose=False):
     print("\nBlock in sentence:")
 
     blocks = []
     prevWord = document[0]
     for word in document:
-        if prevWord.dep_ == "amod" and word.dep_ == "dobj":
+        if prevWord.dep_ == "amod"  and (word.dep_ == "dobj" or word.dep_ == "nsubj"):
+            if verbose:
+                print(prevWord, word)
+
+            blocks.append(prevWord)
+        prevWord = word
+    return blocks
+
+#Get block from a sentence
+def getSingleBlockFromInput(document, verbose=False):
+    print("\nBlock in sentence:")
+
+    blocks = []
+    prevWord = document[0]
+    for word in document:
+        if prevWord.dep_ == "amod"  and (word.dep_ == "dobj" or word.dep_ == "nsubj" or word.dep_ == "pobj"):
             if verbose:
                 print(prevWord, word)
 
@@ -74,7 +81,7 @@ def getMovementsInput(document, verbose=False):
         if word.dep_ == "nummod":
             nummod = str(word)
 
-        if word.dep_ == "advmod":
+        if word.dep_ == "advmod" or word.dep_ == "prt":
             advmod = str(word)
 
         if nummod != "" and advmod != "":
@@ -90,9 +97,9 @@ def getMovementsInput(document, verbose=False):
 
 def main():
 
-    doc = run_spacy(sentence0, True)
+    doc = run_spacy(sentence10, True)
 
-    getBlocksFromInput(doc, True)
+    getSingleBlockFromInput(doc, True)
 
     getMovementsInput(doc, True)
 
