@@ -4,6 +4,7 @@ import numpy as np
 import spacy
 import textacy.extract
 from nltk import Tree
+from spacy.matcher import Matcher
 
 LABEL = "BLOCK"
 
@@ -11,6 +12,9 @@ sentence0 = "Move the blue block seventeen units south and two units east." #Pro
 sentence1 = "The blue block moves seventeen units south and two units east." #block not identified as subject
 sentence2 = "Move the pink block two units up."#up not identified as modifier like east/west/north
 sentence10 = "Put the red block on top of the green block."
+sentence11 = "Put the red block next to the green block."
+
+nlp = spacy.load('en_core_web_lg')
 
 #Create an nltk object
 def to_nltk_tree(node):
@@ -19,10 +23,15 @@ def to_nltk_tree(node):
     else:
         return node.orth_
 
+def on_match_onTopOf(matcher, doc, id, matches):
+      print('Callback for on top of')
+
+def on_match_nextTo(matcher, doc, id, matches):
+      print('Callback for next to')
+
 #Tokenize and produce tags and visualize what input looks like to parser.
 def run_spacy(sentence, verbose=False):
     print("\nRunning spacy tokenizer.")
-    nlp = spacy.load('en_core_web_lg')
     document = nlp(sentence)
 
     if verbose:
@@ -40,21 +49,6 @@ def run_spacy(sentence, verbose=False):
 
     return document
 
-#Get multiple blocks from a sentence
-def getMultipleBlocksFromInput(document, verbose=False):
-    print("\nBlock in sentence:")
-
-    blocks = []
-    prevWord = document[0]
-    for word in document:
-        if prevWord.dep_ == "amod"  and (word.dep_ == "dobj" or word.dep_ == "nsubj"):
-            if verbose:
-                print(prevWord, word)
-
-            blocks.append(prevWord)
-        prevWord = word
-    return blocks
-
 #Get block from a sentence
 def getSingleBlockFromInput(document, verbose=False):
     print("\nBlock in sentence:")
@@ -70,10 +64,24 @@ def getSingleBlockFromInput(document, verbose=False):
         prevWord = word
     return blocks
 
-#Get movements/commands from sentence
-def getMovementsInput(document, verbose=False):
-    print("\nCommand in sentence: ")
+#Get the command from rule based matching by looking for key words
+def getRuleBasedCommand(document, verbose=False):
+    moves = []
+    matcher = Matcher(nlp.vocab)
+    matcher.add("on-top-of", on_match_onTopOf, [{"LOWER": "on"}, {"LOWER": "top"}, {"LOWER": "of"}])
+    matcher.add("next-to", on_match_nextTo, [{"LOWER": "next"}, {"LOWER": "to"}])
 
+    matches = matcher(document)
+
+    for match_id, start, end in matches:
+        span = document[start:end]
+        moves.append(span.text)
+        if verbose:
+            print(span.text)
+    return moves
+
+#Get a command from word tags.
+def getWordTagCommand(document, verbose=False):
     moves = []
     nummod = ""
     advmod = ""
@@ -95,13 +103,20 @@ def getMovementsInput(document, verbose=False):
             print(item)
     return moves
 
+def getCommand(document, verbose=False):
+    print("\nCommand in sentence: ")
+    moves = getRuleBasedCommand(document, True)
+    if not moves:
+        moves = getWordTagCommand(document, True)
+    return moves
+
 def main():
 
-    doc = run_spacy(sentence10, True)
+    doc = run_spacy(sentence11, True)
 
     getSingleBlockFromInput(doc, True)
 
-    getMovementsInput(doc, True)
+    getCommand(doc, True)
 
 
 
