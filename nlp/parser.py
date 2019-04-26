@@ -11,7 +11,7 @@ LABEL = "BLOCK"
 
 sentence0 = "Move the blue block seventeen units south and two units east." #Properly broken down.
 sentence1 = "The blue block moves seventeen units south and two units east." #Same output as above now
-sentence2 = "Move the pink block two units up."#up not identified as modifier like east/west/north
+sentence2 = "Move the pink block two units up."
 sentence10 = "Put the red block on top of the green block."
 sentence11 = "Put the red block next to the green block."
 
@@ -204,8 +204,6 @@ def getStartingState(document, verbose=False):
 def main():
 
     print(getStartingState(sentence100, True))
-
-    
 
 if __name__ == '__main__':
     main()
